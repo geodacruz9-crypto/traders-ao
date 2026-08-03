@@ -40,8 +40,8 @@ async function PerfilTrader({ id }: { id: string }) {
   const freeContent = content?.filter((c) => !c.is_premium) || [];
   const visiblePremiumContent = content?.filter((c) => c.is_premium) || [];
 
-  const { data: premiumCount } = await supabase.rpc(
-    "count_premium_content",
+  const { data: premiumTeasers } = await supabase.rpc(
+    "get_premium_teasers",
     { trader: id },
   );
 
@@ -139,16 +139,35 @@ async function PerfilTrader({ id }: { id: string }) {
                 </div>
               ))}
             </div>
-          ) : premiumCount && premiumCount > 0 ? (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-center">
-              <p className="text-zinc-300">
-                🔒 Este trader tem {premiumCount} conteúdo(s) premium
-                bloqueado(s).
-              </p>
-              <p className="mt-2 text-sm text-zinc-500">
-                Contacta o trader via WhatsApp para saberes como obter
-                acesso.
-              </p>
+          ) : premiumTeasers && premiumTeasers.length > 0 ? (
+            <div className="space-y-3">
+              {(premiumTeasers as {
+                id: string;
+                title: string;
+                description: string | null;
+                content_type: string;
+              }[]).map((item) => (
+                <div
+                  key={item.id}
+                  className="relative rounded-lg border border-zinc-800 bg-zinc-900 p-4"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="mt-1 text-sm text-zinc-400">
+                        {item.description}
+                      </p>
+                    </div>
+                    <span className="ml-3 shrink-0 text-lg">🔒</span>
+                  </div>
+                </div>
+              ))}
+              <div className="rounded-lg border border-emerald-800 bg-emerald-500/5 p-4 text-center">
+                <p className="text-sm text-zinc-300">
+                  Contacta o trader via WhatsApp para saberes como obter
+                  acesso a este conteúdo.
+                </p>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-zinc-500">
@@ -186,4 +205,4 @@ async function PerfilTraderWrapper({
 }) {
   const { id } = await params;
   return <PerfilTrader id={id} />;
-                                         }
+              }
