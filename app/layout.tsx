@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
+import { Navbar } from "@/components/navbar";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -33,6 +35,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Suspense
+            fallback={
+              <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/95 px-6 py-4">
+                <div className="mx-auto max-w-5xl text-sm text-zinc-500">
+                  TradersAO
+                </div>
+              </nav>
+            }
+          >
+            <Navbar />
+          </Suspense>
           {children}
         </ThemeProvider>
       </body>
