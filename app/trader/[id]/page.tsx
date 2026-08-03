@@ -38,7 +38,12 @@ async function PerfilTrader({ id }: { id: string }) {
     .order("created_at", { ascending: false });
 
   const freeContent = content?.filter((c) => !c.is_premium) || [];
-  const premiumContent = content?.filter((c) => c.is_premium) || [];
+  const visiblePremiumContent = content?.filter((c) => c.is_premium) || [];
+
+  const { data: premiumCount } = await supabase.rpc(
+    "count_premium_content",
+    { trader: id },
+  );
 
   return (
     <div className="min-h-screen bg-black px-6 py-12 text-white">
@@ -111,42 +116,40 @@ async function PerfilTrader({ id }: { id: string }) {
 
         <section className="mt-12">
           <h2 className="mb-4 text-xl font-semibold">Conteúdo premium</h2>
-          {premiumContent.length > 0 ? (
-            hasAccess ? (
-              <div className="space-y-3">
-                {premiumContent.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-lg border border-emerald-800 bg-zinc-900 p-4"
-                  >
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="mt-1 text-sm text-zinc-400">
-                      {item.description}
-                    </p>
-                    {item.media_url && (
-                      <a
-                        href={item.media_url}
-                        target="_blank"
-                        className="mt-2 inline-block text-sm text-emerald-400 hover:underline"
-                      >
-                        Ver conteúdo →
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-center">
-                <p className="text-zinc-300">
-                  🔒 Este trader tem {premiumContent.length} conteúdo(s)
-                  premium bloqueado(s).
-                </p>
-                <p className="mt-2 text-sm text-zinc-500">
-                  Contacta o trader via WhatsApp para saberes como obter
-                  acesso.
-                </p>
-              </div>
-            )
+          {hasAccess && visiblePremiumContent.length > 0 ? (
+            <div className="space-y-3">
+              {visiblePremiumContent.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-emerald-800 bg-zinc-900 p-4"
+                >
+                  <h3 className="font-semibold">{item.title}</h3>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {item.description}
+                  </p>
+                  {item.media_url && (
+                    <a
+                      href={item.media_url}
+                      target="_blank"
+                      className="mt-2 inline-block text-sm text-emerald-400 hover:underline"
+                    >
+                      Ver conteúdo →
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : premiumCount && premiumCount > 0 ? (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-center">
+              <p className="text-zinc-300">
+                🔒 Este trader tem {premiumCount} conteúdo(s) premium
+                bloqueado(s).
+              </p>
+              <p className="mt-2 text-sm text-zinc-500">
+                Contacta o trader via WhatsApp para saberes como obter
+                acesso.
+              </p>
+            </div>
           ) : (
             <p className="text-sm text-zinc-500">
               Ainda sem conteúdo premium publicado.
@@ -183,4 +186,4 @@ async function PerfilTraderWrapper({
 }) {
   const { id } = await params;
   return <PerfilTrader id={id} />;
-}
+                                         }
